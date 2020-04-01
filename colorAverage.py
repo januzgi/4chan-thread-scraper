@@ -103,10 +103,6 @@ def imageAnalyze(requests):
 	# Get the length of responses
 	itemsLength = len(list(requests))
 
-
-	print 'Amount of items in imageAnalyze: ', itemsLength
-
-
 	print 'Begin image analyzing...'
 	# Loop through each response content (the img) and analyze the color
 	i = 0
@@ -192,8 +188,6 @@ def run_grequests():
 	    reqs.append(grequests.get(url, session=sessions[k % NUM_SESSIONS]))
 	    k += 1
 
-	print 'Amount of sortedUrls in run_grequests: ', len(sortedUrls)
-
 	# Call grequests.map() to execute all calls asynchronously
 	rs = grequests.map(reqs, size=NUM_SESSIONS)
 
@@ -203,7 +197,7 @@ def run_grequests():
 
 
 def main():
-	# Read the urls from tje imgUrls.json
+	# Read the urls from imgUrls.json
 	readUrls()
 	# Sen the grequests for the jpg's
 	run_grequests()
