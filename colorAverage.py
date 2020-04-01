@@ -1,11 +1,8 @@
 import requests, json, grequests
 from io import BytesIO
 from PIL import Image
-
-
-# Load the img urls from the imgUrls.json
-with open('imgUrls.json') as json_file:
-    urls = json.load(json_file)
+from requests.packages.urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 
 # Define the url array
 sortedUrls = []
@@ -14,27 +11,35 @@ colors = []
 # Count IOErrors in imageAnalyze()
 errorCount = 0
 
-dics = len(urls['links']) # urls dictionary
-i = 1 # links array (up from 1)
-# for the ~150 dics in urls:
-while i < 5:
-	dicLength = len(urls['links'][i])
-	j = 0
-	# links[i] contains lists of dictionaries
-	while j < dicLength:
-		# key 'link' has the value URL 
-		# Continue to next when the file is deleted
-		if 'deleted' in urls['links'][i][j]['link']:
-			j += 1 
-			continue 
-		# Add each valid URL into an array
-		sortedUrls.append(urls['links'][i][j]['link'])
-		# Increase j for next iteration
-		j += 1
-	# Increase i for next iteration
-	i += 1
 
-print 'Succesfully read the img urls from imgUrls.json.'
+
+def readUrls():
+	# Load the img urls from the imgUrls.json
+	with open('imgUrls.json') as json_file:
+	    urls = json.load(json_file)
+
+	dics = len(urls['links']) # urls dictionary
+	i = 1 # links array (up from 1)
+	# for the ~150 dics in urls:
+	while i < dics:
+		dicLength = len(urls['links'][i])
+		j = 0
+		# links[i] contains lists of dictionaries
+		while j < dicLength:
+			# key 'link' has the value URL 
+			# Continue to next when the file is deleted
+			if 'deleted' in urls['links'][i][j]['link']:
+				j += 1 
+				continue 
+			# Add each valid URL into an array
+			sortedUrls.append(urls['links'][i][j]['link'])
+			# Increase j for next iteration
+			j += 1
+		# Increase i for next iteration
+		i += 1
+
+	print 'Succesfully read the img urls from imgUrls.json.'
+
 
 
 # Calculate HSV color from RGB 
@@ -95,14 +100,20 @@ def rgb_to_hsv(r, g, b):
 
 
 def imageAnalyze(requests):
-	# Get the amount of responses
+	# Get the length of responses
 	itemsLength = len(list(requests))
+
+
+	print 'Amount of items in imageAnalyze: ', itemsLength
+
 
 	print 'Begin image analyzing...'
 	# Loop through each response content (the img) and analyze the color
 	i = 0
 	# Reset errors to 0
+	global errorCount
 	errorCount = 0
+
 	while i < itemsLength:
 		# Check if the response object exists
 		if (list(requests)[i] is None):
@@ -115,16 +126,18 @@ def imageAnalyze(requests):
 			# Next iteration increase
 			i += 1
 			continue
-	    
-	    # BytesIO may cause error at times, thus with try except
+
+		print 'Results of: ',list(requests)[i].url
+		# BytesIO may cause error at times, thus with try except
 		try:
 			# Open the img bytes
 			imgBytes = BytesIO(list(requests)[i].content)
 			imgBytes.seek(0)
 			img = Image.open(imgBytes)
 		except IOError as e:
-			print 'I/O error: {1}'.format(e)
+			print 'IOError {}'.format(e)
 			# Skip this content
+			errorCount += 1
 			# If more IOErrors, break and retry from start
 			if (errorCount > 5):
 				break
@@ -156,32 +169,66 @@ def imageAnalyze(requests):
 
 
 
-def run_qrequests():
+def run_grequests():
 	print 'Begin grequests to urls...'
 
-	# Get each picture and its average color
-	rs = (grequests.get(u) for u in sortedUrls)
-	# Send the requests
-	requests = grequests.map(rs)
+	# Number of simultaneous sessions
+	NUM_SESSIONS = 10
+	# Initiate as many sessions
+	sessions = [requests.Session() for i in range(NUM_SESSIONS)]
+	# Create retry instances
+	retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+	# For each session, mount the adapter with the given settings
+	for s in sessions:
+	    s.mount('http://', HTTPAdapter(max_retries=retries))
+	    s.mount('https://', HTTPAdapter(max_retries=retries))
+
+	# Create all the requests we need to perform, 
+	# and spread them out between the workers using modulo.
+	reqs = []
+	k = 0
+
+	for url in sortedUrls:
+	    reqs.append(grequests.get(url, session=sessions[k % NUM_SESSIONS]))
+	    k += 1
+
+	print 'Amount of sortedUrls in run_grequests: ', len(sortedUrls)
+
+	# Call grequests.map() to execute all calls asynchronously
+	rs = grequests.map(reqs, size=NUM_SESSIONS)
 
 	print 'grequests complete.'
-
-	imageAnalyze(requests)
-
-
-run_qrequests()
+	imageAnalyze(rs)
 
 
-if (errorCount > 5):
-	run_qrequests()
+
+def main():
+	# Read the urls from tje imgUrls.json
+	readUrls()
+	# Sen the grequests for the jpg's
+	run_grequests()
+
+	# If IOErrors occur
+	if (errorCount > 5):
+		run_grequests()
+
+	# When all goes well
+	print '\nAll valid colors:\n'
+	print('\n'.join(colors))
+
+	# Save the list of colors into a file
+	with open('colors.json', 'w') as outfile:
+		json.dump(colors, outfile)
+
+	print 'Succesfully wrote colors.json.'
 
 
-print '\nAll valid colors:\n'
-print('\n'.join(colors))
 
 
-# Save the list of colors into a file
-with open('colors.json', 'w') as outfile:
-    json.dump(colors, outfile)
+if __name__ == '__main__':
+    main()
 
-print 'Succesfully wrote colors.json.'
+
+
+
+
