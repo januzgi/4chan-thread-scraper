@@ -2,7 +2,7 @@
 
 [> Built on the base of 4Chan Thread Scraper <](https://github.com/cipherbeta/4chan-scraper)
 
->A simple but easy to use and tweak thread scraper. Uses Nightmare to parse threads, and cheerio to help out with object generation. Outputs a JSON file for you to use with other endeavors.
+>A simple but easy to use and tweak thread scraper. Uses axios for getting content and cheerio to parse the HTML.
 
 # How It Works
 
