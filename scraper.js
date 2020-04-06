@@ -1,62 +1,129 @@
-const Nightmare = require('nightmare');
 const cheerio = require('cheerio');
+const axios = require('axios');
 const fs = require('fs');
+const baseUrl = 'https://boards.4channel.org/biz/thread/';
 
-const board = 'biz';
+// All thread URLs
+let allThreadNos = [];
+// All imgUrls
+let allImgUrls = [];
 
-const url = (board) => {
-  return 'https://boards.4channel.org/' + board + '/catalog';
-};
+// Reset the imgUrls.json file
+function resetJson() {
+  return new Promise((resolve) => {
+    // Dummy object
+    let emptyObj = { links: ['dummy'] };
+    console.log('Resetting imgUrls.json file.');
+    let json = JSON.stringify(emptyObj);
+    // Write the file
+    fs.writeFile('imgUrls.json', json, 'utf8', function(err) {
+      if (err) {
+        console.log(err);
+        resolve('error');
+      }
+      resolve('Success!');
+    });
+  });
+}
 
-// Gets the thread urls correctly and writes them into a file.
-const crawlCatalogue = async () => {
-  console.log('Starting crawl process for /' + board + '/');
-  const nightmare = new Nightmare({ show: false });
-  try {
-    let threads = await nightmare
-      .goto(url(board))
-      .wait('#threads .thread')
-      .evaluate(() => {
-        let elements = Array.from(document.getElementsByClassName('thread'));
-        return elements.map((elem) => {
-          return {
-            content: elem.innerHTML
-          };
-        });
-      })
-      .end()
-      .then((threads) => {
-        console.log(
-          'Found ' + threads.length + ' threads. Mapping to objects...'
-        );
-        // Delete first two static threads
-        delete threads[0];
-        delete threads[1];
-        let formatted = threads.map((item) => {
-          let $ = cheerio.load(item.content);
-          link = 'https:' + $('a').attr('href');
-          data = {
-            link: link
-          };
-          return data;
-        });
-        return formatted;
-      });
-    return threads;
-  } catch (err) {
-    console.log(err);
-  }
-};
+async function fetchHTML(url) {
+  const result = await axios.get(url);
+  // Return the data object of the response
+  return result.data;
+}
 
-crawlCatalogue()
-  .then((response) => {
-    console.log('Completed with no errors! Writing file.');
-    let formattedResponse = JSON.stringify(response, null, 4);
+// Get the thread img urls
+function crawlThread(contents) {
+  return new Promise((resolve) => {
+    // Load the cheerio object
+    let $ = cheerio.load(contents);
+    // Add each img thumbnail resource url to allImgUrls
+    $('.fileThumb > img').each((i, element) => {
+      imgUrl = 'https:' + $(element).attr('src');
+      allImgUrls.push(imgUrl);
+    });
+    resolve('Success!');
+  });
+}
+
+// Adds the read urls to imgUrls.json
+function writeImgUrls(response) {
+  return new Promise((resolve) => {
+    let obj;
     try {
-      fs.writeFileSync('log.json', formattedResponse, 'utf8');
-      console.log('File output complete.');
+      // Read the json file to add data to it
+      fs.readFile('imgUrls.json', 'utf8', function readFileCallback(err, data) {
+        if (err) {
+          console.log(err);
+          resolve('error');
+        } else {
+          obj = JSON.parse(data); // Now it's an object
+          obj.links.push(response); // Add the data
+          json = JSON.stringify(obj); // Convert back to json
+          // Write the file
+          fs.writeFile('imgUrls.json', json, 'utf8', function(err) {
+            if (err) {
+              console.log(err);
+              resolve('error');
+            }
+            resolve('Success!');
+          });
+        }
+      });
     } catch (err) {
-      if (err) throw err;
+      console.log(err);
+      resolve('error');
     }
-  })
-  .catch((e) => console.log(e));
+  });
+}
+
+async function run() {
+  // 1. Reset imgUrls.json to write the urls from this fetch
+  let reset = await resetJson();
+  if (reset === 'error') {
+    console.log('Error in resetJson()');
+  } else {
+    console.log('Reseted imgUrls.json. \nStarting to fetch thread URLs.');
+  }
+
+  // 2. Get the json for /biz/ thread URLs
+  let json = await fetchHTML('https://a.4cdn.org/biz/threads.json');
+  // Read each URL from the json
+  for (let i = 0; i < json.length; i++) {
+    for (let j = 0; j < json[i].threads.length; j++) {
+      allThreadNos.push(json[i].threads[j]['no']);
+    }
+  }
+  // Delete the first two URLs of the sticky threads
+  allThreadNos.splice(0, 2);
+  console.log('Fetched thread URLs.\nStarting to crawl threads.');
+
+  // 3. Run the crawlThread and writeImgUrls async functions once for every URL
+  for (let k = 0; k < allThreadNos.length; k++) {
+    // Attach the no of the thread to the url
+    let url = baseUrl + allThreadNos[k];
+    // Only go to existing items
+    if (url) {
+      // Get the contents of this thread
+      let contents = await fetchHTML(url);
+      // Crawls through every thread
+      let response = await crawlThread(contents);
+      if (response === 'error') {
+        console.log('Error in crawlThread(url)');
+      } else {
+        console.log('Thread ' + url + ' img urls added to allImgUrls.');
+      }
+    }
+  }
+
+  // Writes all of the the img urls into imgUrls.json
+  let writeUrlsToImgJson = await writeImgUrls(allImgUrls);
+  if (writeUrlsToImgJson === 'error') {
+    console.log('Error in writeImgUrls(response)');
+  } else {
+    console.log('\nAdded allImgUrls to imgUrls.json succesfully.');
+    console.log('scraper.js is done.');
+  }
+}
+
+run();

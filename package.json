@@ -13,6 +13,7 @@
     "axios": "^0.19.2",
     "cheerio": "^1.0.0-rc.2",
     "fast-average-color": "^6.0.2",
-    "nightmare": "^3.0.1"
+    "nightmare": "^3.0.1",
+    "node-html-parser": "^1.2.14"
   }
 }

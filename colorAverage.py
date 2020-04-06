@@ -3,6 +3,7 @@ from io import BytesIO
 from PIL import Image
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
+from datetime import datetime
 
 # Define the url array
 sortedUrls = []
@@ -28,11 +29,11 @@ def readUrls():
 		while j < dicLength:
 			# key 'link' has the value URL 
 			# Continue to next when the file is deleted
-			if 'deleted' in urls['links'][i][j]['link']:
+			if 'deleted' in urls['links'][i][j]:
 				j += 1 
 				continue 
 			# Add each valid URL into an array
-			sortedUrls.append(urls['links'][i][j]['link'])
+			sortedUrls.append(urls['links'][i][j])
 			# Increase j for next iteration
 			j += 1
 		# Increase i for next iteration
@@ -44,6 +45,7 @@ def readUrls():
 
 # Calculate HSV color from RGB 
 def rgb_to_hsv(r, g, b):
+    red, green, blue = r, g, b 
     r, g, b = r/255.0, g/255.0, b/255.0
     mx = max(r, g, b)
     mn = min(r, g, b)
@@ -84,14 +86,15 @@ def rgb_to_hsv(r, g, b):
 
     # Add a flag whether r or g hue
     # r = red/pink/magenta, g = green
+    # Return the RGB values
     # Green Hue (H) from 80 - 160
     if (79 < hI < 161):
-        hsv = 'g' + ',' + str(hI) + ',' + str(sI) + ',' + str(vI)
+        hsv = 'g' + ',' + str(red) + ',' + str(green) + ',' + str(blue)
         return hsv
 
     # Red/Magenta hue (H) from 280 - 360 or 0 - 20
     if ((-1 < hI < 21) or (279 < hI < 361)):
-        hsv = 'r' + ',' + str(hI) + ',' + str(sI) + ',' + str(vI)
+        hsv = 'r' + ',' + str(red) + ',' + str(green) + ',' + str(blue)
         return hsv
 
     # rest of the colors not interesting to us, return 'invalid'
@@ -123,7 +126,7 @@ def imageAnalyze(requests):
 			i += 1
 			continue
 
-		print 'Results of: ',list(requests)[i].url
+		# print 'Results of: ',list(requests)[i].url
 		# BytesIO may cause error at times, thus with try except
 		try:
 			# Open the img bytes
@@ -196,6 +199,7 @@ def run_grequests():
 
 
 
+
 def main():
 	# Read the urls from imgUrls.json
 	readUrls()
@@ -207,14 +211,37 @@ def main():
 		run_grequests()
 
 	# When all goes well
-	print '\nAll valid colors:\n'
-	print('\n'.join(colors))
+	# print('\n'.join(colors))
 
-	# Save the list of colors into a file
-	with open('colors.json', 'w') as outfile:
-		json.dump(colors, outfile)
+	# Read the number of r and g tagged color values and
+	# save these simple numbers into history.json
+	gCount = 0
+	rCount = 0
+	for color in colors:
+		type = color[ 0 : 1 ]
+		if (type == 'g'):
+			gCount = gCount + 1
+			continue
+		rCount = rCount + 1
 
-	print 'Succesfully wrote colors.json.'
+	# Put the numbers into colorsCount string
+	colorsCount = str(gCount)
+	colorsCount += ','
+	colorsCount += str(rCount)
+
+	# Get timestamp
+	# Returns a datetime object containing the local time
+	dateTimeObj = datetime.now()
+	date = dateTimeObj.strftime("%d-%b-%Y %H:%M")
+
+	colorData = date + ' ' + colorsCount
+
+	# Read and write to colors.txt
+	fh = open('colors.txt', 'a')
+	fh.write(colorData + '\n')
+	fh.close()
+
+	print 'Succesfully appended colors.txt.'
 
 
 

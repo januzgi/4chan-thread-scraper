@@ -1,7 +1,13 @@
-# 4Chan Thread Scraper
+# 4chan /biz/ thread images color scraper
 
-A simple but easy to use and tweak thread scraper. Uses Nightmare to parse threads, and cheerio to help out with object generation. Outputs a JSON file for you to use with other endeavors.
+[> Built on the base of 4Chan Thread Scraper <](https://github.com/cipherbeta/4chan-scraper)
 
-### How to get working.
+>A simple but easy to use and tweak thread scraper. Uses Nightmare to parse threads, and cheerio to help out with object generation. Outputs a JSON file for you to use with other endeavors.
 
-Have nodejs on your comp. Clone the repo, then open up a terminal in that directory. Type `npm i` to install necessary dependencies, then `node scraper.js` to run the scraper. Change boards at your discretion via the `board` variable.
+# How It Works
+
+1. Scrapes 4chan /biz/ catalog with `scraper.js` for newest threads and then each thread for their image urls. 
+
+2. Analyzes each jpg using Python `colorAverage.py` by resizing images to 1x1 pixels and reading the color. Uses grequests and 10 simultaneous workers to fetch data quickly. Analyzes each jpg through HSV colors to determine whether they are green or red.
+
+3. Knowing if jpg is green or red creates a `colors.txt` where the amount of green and red images can be found with a timestamp.
