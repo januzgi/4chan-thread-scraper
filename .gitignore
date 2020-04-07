@@ -1,1 +1,8 @@
 node_modules/
+.DS_Store
+Pipfile
+Pipfile.lock
+imgUrls.json
+package-lock.json
+package.json
+colorsResults.txt
