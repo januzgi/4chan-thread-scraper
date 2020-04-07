@@ -9,75 +9,75 @@ let allThreadNos = [];
 let allImgUrls = [];
 
 // Reset the imgUrls.json file
-function resetJson() {
-  return new Promise((resolve) => {
-    // Dummy object
-    let emptyObj = { links: ['dummy'] };
-    console.log('Resetting imgUrls.json file.');
-    let json = JSON.stringify(emptyObj);
-    // Write the file
-    fs.writeFile('imgUrls.json', json, 'utf8', function(err) {
-      if (err) {
-        console.log(err);
-        resolve('error');
-      }
-      resolve('Success!');
-    });
+const resetJson = async () => {
+  // Dummy object
+  let emptyObj = { links: ['dummy'] };
+  console.log('Resetting imgUrls.json file.');
+  let json = JSON.stringify(emptyObj);
+  // Write the file
+  fs.writeFile('imgUrls.json', json, 'utf8', function (err) {
+    if (err) {
+      console.log(err);
+      return 'error';
+    }
+    return 'Success!';
   });
-}
+};
 
-async function fetchHTML(url) {
+const fetchHTML = async (url) => {
   const result = await axios.get(url);
   // Return the data object of the response
   return result.data;
-}
+};
 
 // Get the thread img urls
-function crawlThread(contents) {
-  return new Promise((resolve) => {
-    // Load the cheerio object
-    let $ = cheerio.load(contents);
-    // Add each img thumbnail resource url to allImgUrls
-    $('.fileThumb > img').each((i, element) => {
-      imgUrl = 'https:' + $(element).attr('src');
-      allImgUrls.push(imgUrl);
-    });
-    resolve('Success!');
+const crawlThread = async (contents) => {
+  // Load the cheerio object
+  let $ = cheerio.load(contents);
+  // Add each img thumbnail resource url to allImgUrls
+  $('.fileThumb > img').each((i, element) => {
+    imgUrl = 'https:' + $(element).attr('src');
+    allImgUrls.push(imgUrl);
   });
-}
+  return 'Success!';
+};
 
 // Adds the read urls to imgUrls.json
-function writeImgUrls(response) {
-  return new Promise((resolve) => {
-    let obj;
-    try {
-      // Read the json file to add data to it
-      fs.readFile('imgUrls.json', 'utf8', function readFileCallback(err, data) {
-        if (err) {
-          console.log(err);
-          resolve('error');
-        } else {
-          obj = JSON.parse(data); // Now it's an object
-          obj.links.push(response); // Add the data
-          json = JSON.stringify(obj); // Convert back to json
-          // Write the file
-          fs.writeFile('imgUrls.json', json, 'utf8', function(err) {
-            if (err) {
-              console.log(err);
-              resolve('error');
-            }
-            resolve('Success!');
-          });
-        }
-      });
-    } catch (err) {
-      console.log(err);
-      resolve('error');
-    }
-  });
-}
+const writeImgUrls = async (response) => {
+  // return new Promise((resolve) => {
+  let obj;
+  try {
+    // Read the json file to add data to it
+    fs.readFile('imgUrls.json', 'utf8', function readFileCallback(err, data) {
+      if (err) {
+        console.log(err);
+        // resolve('error');
+        return 'error';
+      } else {
+        obj = JSON.parse(data); // Now it's an object
+        obj.links.push(response); // Add the data
+        json = JSON.stringify(obj); // Convert back to json
+        // Write the file
+        fs.writeFile('imgUrls.json', json, 'utf8', function (err) {
+          if (err) {
+            console.log(err);
+            // resolve('error');
+            return 'error';
+          }
+          // resolve('Success!');
+          return 'Success!';
+        });
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    // resolve('error');
+    return 'error';
+  }
+  // });
+};
 
-async function run() {
+const run = async () => {
   // 1. Reset imgUrls.json to write the urls from this fetch
   let reset = await resetJson();
   if (reset === 'error') {
@@ -96,9 +96,11 @@ async function run() {
   }
   // Delete the first two URLs of the sticky threads
   allThreadNos.splice(0, 2);
-  console.log('Fetched thread URLs.\nStarting to crawl threads.');
+  console.log('Fetched thread URLs.');
 
   // 3. Run the crawlThread and writeImgUrls async functions once for every URL
+  console.log('Crawling thread: ');
+  let counter = 1; // counter for urls
   for (let k = 0; k < allThreadNos.length; k++) {
     // Attach the no of the thread to the url
     let url = baseUrl + allThreadNos[k];
@@ -111,7 +113,8 @@ async function run() {
       if (response === 'error') {
         console.log('Error in crawlThread(url)');
       } else {
-        console.log('Thread ' + url + ' img urls added to allImgUrls.');
+        console.log(counter + '/' + allThreadNos.length + ' # ' + url);
+        counter += 1;
       }
     }
   }
@@ -121,9 +124,9 @@ async function run() {
   if (writeUrlsToImgJson === 'error') {
     console.log('Error in writeImgUrls(response)');
   } else {
-    console.log('\nAdded allImgUrls to imgUrls.json succesfully.');
-    console.log('scraper.js is done.');
+    console.log('Added allImgUrls to imgUrls.json succesfully.');
+    console.log('\nscraper.js is done.\n');
   }
-}
+};
 
 run();
