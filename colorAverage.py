@@ -210,11 +210,7 @@ def main():
 	if (errorCount > 5):
 		run_grequests()
 
-	# When all goes well
-	# print('\n'.join(colors))
-
-	# Read the number of r and g tagged color values and
-	# save these simple numbers into history.json
+	# Read the number of r and g tagged color values
 	gCount = 0
 	rCount = 0
 	for color in colors:
@@ -229,20 +225,14 @@ def main():
 	colorsCount += ','
 	colorsCount += str(rCount)
 
-	# Get timestamp
-	# Returns a datetime object containing the local time
-	dateTimeObj = datetime.now()
-	date = dateTimeObj.strftime("%d-%b-%Y %H:%M")
-
-	colorData = date + ' ' + colorsCount
+	colorData = colorsCount
 
 	# Read and write to colors.txt
-	fh = open('colors.txt', 'a')
-	fh.write(colorData + '\n')
+	fh = open('colors.txt', 'w')
+	fh.write(colorData)
 	fh.close()
-
-	print 'Succesfully appended colors.txt.'
-
+	
+	print 'Succesfully wrote this round to colors.txt.'
 
 
 

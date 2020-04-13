@@ -1,0 +1,5 @@
+{"timestamp": 13-Apr-2020 14:19, "price": 6718, "gCount": 63, "rCount": 61}
+{"timestamp": 13-Apr-2020 14:19, "price": 6718, "gCount": 63, "rCount": 61}
+{"timestamp": 13-Apr-2020 14:24, "price": 6726, "gCount": 53, "rCount": 52}
+{"timestamp": 13-Apr-2020 14:55, "price": 6826, "gCount": 57, "rCount": 53}
+{"timestamp": 13-Apr-2020 14:59, "price": 6817, "gCount": 58, "rCount": 53}
