@@ -1,4 +1,5 @@
 node_modules/
+testing/
 .DS_Store
 Pipfile
 Pipfile.lock
