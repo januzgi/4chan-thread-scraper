@@ -7,3 +7,5 @@ imgUrls.json
 package-lock.json
 package.json
 colorsResults.txt
+bitcoinPriceTest.py
+results/
