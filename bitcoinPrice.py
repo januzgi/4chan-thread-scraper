@@ -10,14 +10,11 @@ def read_json():
 	return jsonData
 
 
-
 def get_price_data(json):
-	price = str(json['bpi']['USD']['rate'])
-	# Strip the ',' from price, convert to float and to int
-	price = int(float(price.replace(',', '')))
+	price = str(json['USD']['last'])
+	# Convert to float and to int
+	price = int(float(price))
 	return price
-
-
 
 
 def main():
@@ -27,6 +24,8 @@ def main():
 	priceInt = get_price_data(json.loads(priceJson))
 	# Get timestamp as milliseconds
 	milli_sec = int(round(time.time() * 1000))
+	# Add 3 hours to make it Helsinki local time
+	milli_sec = milli_sec + 10800000
 	
 	# Read the colordata from colors.txt
 	# The format is: '63,61' where greenCount,redCount
@@ -39,12 +38,11 @@ def main():
 	dataString = "{\"timestamp\": \"%d\", \"price\": \"%d\", \"gCount\": \"%s\", \"rCount\": \"%s\"}" % (milli_sec, priceInt, gCount, rCount)
 	print dataString
 
-	# Read and write to results.txt
+	# Read and write to resultsTest.txt
 	fh = open('results/results.txt', 'a')
 	fh.write(dataString + '\n')
 	fh.close()
 	print '\nSuccesfully saved BTC price and color data to results.txt'
-
 
 
 
