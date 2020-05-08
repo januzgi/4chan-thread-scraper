@@ -1,0 +1,4 @@
+{"timestamp": "1587558336827", "price": "6959", "gCount": "48", "rCount": "44"}
+{"timestamp": "1587558649068", "price": "6958", "gCount": "52", "rCount": "42"}
+{"timestamp": "1587559010177", "price": "6960", "gCount": "52", "rCount": "42"}
+{"timestamp": "1587559258800", "price": "6966", "gCount": "52", "rCount": "42"}

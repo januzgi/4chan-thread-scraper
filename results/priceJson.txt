@@ -1,1 +1,25 @@
-{"time":{"updated":"Apr 21, 2020 06:50:00 UTC","updatedISO":"2020-04-21T06:50:00+00:00","updateduk":"Apr 21, 2020 at 07:50 BST"},"disclaimer":"This data was produced from the CoinDesk Bitcoin Price Index (USD). Non-USD currency data converted using hourly conversion rate from openexchangerates.org","bpi":{"USD":{"code":"USD","rate":"6,897.8950","description":"United States Dollar","rate_float":6897.895}}}
+{
+  "USD" : {"15m" : 6964.45, "last" : 6964.45, "buy" : 6964.45, "sell" : 6964.45, "symbol" : "$"},
+  "AUD" : {"15m" : 10995.78, "last" : 10995.78, "buy" : 10995.78, "sell" : 10995.78, "symbol" : "$"},
+  "BRL" : {"15m" : 37026.49, "last" : 37026.49, "buy" : 37026.49, "sell" : 37026.49, "symbol" : "R$"},
+  "CAD" : {"15m" : 9861.64, "last" : 9861.64, "buy" : 9861.64, "sell" : 9861.64, "symbol" : "$"},
+  "CHF" : {"15m" : 6755.34, "last" : 6755.34, "buy" : 6755.34, "sell" : 6755.34, "symbol" : "CHF"},
+  "CLP" : {"15m" : 5996389.99, "last" : 5996389.99, "buy" : 5996389.99, "sell" : 5996389.99, "symbol" : "$"},
+  "CNY" : {"15m" : 49335.45, "last" : 49335.45, "buy" : 49335.45, "sell" : 49335.45, "symbol" : "¥"},
+  "DKK" : {"15m" : 47863.32, "last" : 47863.32, "buy" : 47863.32, "sell" : 47863.32, "symbol" : "kr"},
+  "EUR" : {"15m" : 6422.29, "last" : 6422.29, "buy" : 6422.29, "sell" : 6422.29, "symbol" : "€"},
+  "GBP" : {"15m" : 5653.42, "last" : 5653.42, "buy" : 5653.42, "sell" : 5653.42, "symbol" : "£"},
+  "HKD" : {"15m" : 53975.3, "last" : 53975.3, "buy" : 53975.3, "sell" : 53975.3, "symbol" : "$"},
+  "INR" : {"15m" : 533877.2, "last" : 533877.2, "buy" : 533877.2, "sell" : 533877.2, "symbol" : "₹"},
+  "ISK" : {"15m" : 1014580.67, "last" : 1014580.67, "buy" : 1014580.67, "sell" : 1014580.67, "symbol" : "kr"},
+  "JPY" : {"15m" : 751521.79, "last" : 751521.79, "buy" : 751521.79, "sell" : 751521.79, "symbol" : "¥"},
+  "KRW" : {"15m" : 8587372.77, "last" : 8587372.77, "buy" : 8587372.77, "sell" : 8587372.77, "symbol" : "₩"},
+  "NZD" : {"15m" : 11634.56, "last" : 11634.56, "buy" : 11634.56, "sell" : 11634.56, "symbol" : "$"},
+  "PLN" : {"15m" : 29085.69, "last" : 29085.69, "buy" : 29085.69, "sell" : 29085.69, "symbol" : "zł"},
+  "RUB" : {"15m" : 535270.03, "last" : 535270.03, "buy" : 535270.03, "sell" : 535270.03, "symbol" : "RUB"},
+  "SEK" : {"15m" : 70197.98, "last" : 70197.98, "buy" : 70197.98, "sell" : 70197.98, "symbol" : "kr"},
+  "SGD" : {"15m" : 9941.94, "last" : 9941.94, "buy" : 9941.94, "sell" : 9941.94, "symbol" : "$"},
+  "THB" : {"15m" : 225831.13, "last" : 225831.13, "buy" : 225831.13, "sell" : 225831.13, "symbol" : "฿"},
+  "TRY" : {"15m" : 48670.0, "last" : 48670.0, "buy" : 48670.0, "sell" : 48670.0, "symbol" : "₺"},
+  "TWD" : {"15m" : 209469.69, "last" : 209469.69, "buy" : 209469.69, "sell" : 209469.69, "symbol" : "NT$"}
+}
